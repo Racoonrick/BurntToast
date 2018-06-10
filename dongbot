@@ -1,0 +1,37 @@
+import gdax
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("cmd", nargs='?', default="bal")
+parser.add_argument("val", nargs='?', default="null")
+args = parser.parse_args()
+
+print " dongbot "
+
+key = "4257c48ee8b98f32fc55909775ba4318"
+b64secret = "Zjh9muAHd9M8DctmkJ4BFcs3AoSj6dYHrflMj5rafTzUckN1khdZ2csnmSt89xZYcQyqWkHBhmSL9swYo4BeJg=="
+passphrase = "r94t89bn20b"
+
+pub_client = gdax.PublicClient()
+auth_client = gdax.AuthenticatedClient(key, b64secret, passphrase,
+    api_url="https://api-public.sandbox.gdax.com")
+
+if args.cmd == "bal":
+    print "Balances"
+    for i in auth_client.get_accounts():
+        print i['currency'], i['balance']
+
+elif args.cmd == "id":
+    for i in auth_client.get_accounts():
+        print i['currency'], i['id']
+
+elif args.cmd == "buy":
+#    auth_client.buy(price=args.val, #USD
+#        size = '', #BTC
+#        product_id='BTC-USD')
+    print "Buy!", args.val
+    
+elif args.cmd == "sell":
+    print "Sell!", args.val
+
+print "-"
