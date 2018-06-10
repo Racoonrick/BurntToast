@@ -1,7 +1,0 @@
-from pathlib import Path
-
-my_file = Path("btc_usd_data")
-if my_file.is_file():
-	print("It exists")
-else:
-	print("It doesn't exist")
