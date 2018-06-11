@@ -44,8 +44,6 @@ class data_handle:
 		self.fclose()
 		self.printdb("File "+self.fileName+" wrote to quickly.")
 
-
-
 	def dictRead(self):
 		self.fopen('r')
 		fileText = self.fileOpened.read()
