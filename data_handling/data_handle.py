@@ -48,8 +48,8 @@ class data_handle:
 		self.fopen('r')
 		fileText = self.fileOpened.read()
 		fileDict = json.loads(fileText)
-		return fileDict
 		self.fclose()
+		return fileDict
 
 	def dictWrite(self,dictForDump):
 		self.fopen('w')
