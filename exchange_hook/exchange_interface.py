@@ -1,8 +1,6 @@
 from data_handling.data_handle import data_handle as dh
 import json
-#import gdax
-
-print ("test1")
+import gdax
 
 def toptest():
 	print ("test2")
@@ -10,7 +8,14 @@ def toptest():
 class exchange:
 	exchangeName="GDAX"
 	loginPath="login.json" #Copy the JSON file to the directory you execute your program from
-	# def __init__(self):
+	loginData = dh(loginPath).dictRead()
+	auth_client = gdax.AuthenticatedClient(loginData['key'], 
+		loginData['b64secret'], loginData['passphrase'])
+	
+	def __init__(self):
+		exchange.loginData = dh(loginPath).dictRead()
+		exchange.auth_client = gdax.AuthenticatedClient(exchange.loginData['key'], 
+		exchange.loginData['b64secret'], exchange.loginData['passphrase'])
 		#self.exchangeName = exchangeName
 
 	def accountInfo(self):
@@ -20,11 +25,41 @@ class exchange:
 			print (data['b64secret'])
 			print (data['passphrase'])
 		else:
-			return {}
+			print("Error: Exchange Not Found")
+	
+	def buy(self, price, size, product_id):
+		if exchange.exchangeName == "GDAX":
+			exchange.auth_client.buy(price = price,
+			size = size, product_id = product_id)
+			print('Buy Order Placed')
+			print(' --- ')
+			print('price: ', price)
+			print('size: ', size)
+			print('productId: ', product_id)
+		else:
+			print("Error: Exchange Not Found")
+			
+	def getOrders(self):
+		if exchange.exchangeName == "GDAX":
+			orders = exchange.auth_client.get_orders()
+			print (json.dumps(orders, sort_keys=True, indent=4, separators=(',', ': ')))
+			return orders
+		else:
+			print("Error: Exchange Not Found")
+	
+	def printBalances(self):
+		if exchange.exchangeName == "GDAX":
+			for i in exchange.auth_client.get_accounts():
+				# print(i['currency'], i['balance'])
+				print(i)
+		else:
+			print("Error: Exchange Not Found")
 	
 	@staticmethod
 	def test():
-		print ("test4")
+		print (exchange.loginData['key'])
+		print (exchange.loginData['b64secret'])
+		print (exchange.loginData['passphrase'])
 
 	# def getBalance(self):
 	# 	if exchangeName =="GDAX":
