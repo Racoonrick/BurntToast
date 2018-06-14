@@ -12,11 +12,11 @@ class exchange:
 	auth_client = gdax.AuthenticatedClient(loginData['key'], 
 		loginData['b64secret'], loginData['passphrase'])
 	
-	def __init__(self):
-		exchange.loginData = dh(loginPath).dictRead()
-		exchange.auth_client = gdax.AuthenticatedClient(exchange.loginData['key'], 
-		exchange.loginData['b64secret'], exchange.loginData['passphrase'])
-		#self.exchangeName = exchangeName
+	# def __init__(self):
+	# 	exchange.loginData = dh(loginPath).dictRead()
+	# 	exchange.auth_client = gdax.AuthenticatedClient(exchange.loginData['key'], 
+	# 	exchange.loginData['b64secret'], exchange.loginData['passphrase'])
+	# 	#self.exchangeName = exchangeName
 
 	def accountInfo(self):
 		if exchange.exchangeName == "GDAX":
