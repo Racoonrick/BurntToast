@@ -1,13 +1,15 @@
 from data_handling.data_handle import data_handle as dh
 import json
 import gdax
+import os
 
+current_path = os.path.abspath(os.path.dirname(__file__))
 
 def toptest(): #this exists to test normal functions (with no class)
 	print ("test2")
 
 class exchange:
-	loginPath = "login.json" #Copy the JSON file to the directory you execute your program from
+	loginPath = os.path.join(current_path, "../../login.json")
 	loginData = dh(loginPath).dictRead()
 	auth_client = None
 	
@@ -18,7 +20,7 @@ class exchange:
 				exchange.loginData['key'],
 				exchange.loginData['b64secret'],
 				exchange.loginData['passphrase'],
-				api_url="https://api-public.sandbox.gdax.com")
+				exchange.loginData['api_url'])
 
 	def accountInfo(self):
 		print("TODO: Make accountInfo function")
