@@ -19,7 +19,7 @@ if __name__ == "__main__":
     class MyWebsocketClient(gdax.WebsocketClient):
         def on_open(self):
             self.url = "wss://ws-feed.gdax.com/"
-            self.products = ["BTC-USD", "ETH-USD"]
+            self.products = ["BTC-USD"]
             self.message_count = 0
             print("Let's count the messages!")
             print(__name__)
@@ -34,7 +34,9 @@ if __name__ == "__main__":
                     self.on_error(e)
                 else:
                     self.on_message(msg)
-                    self.data_ws.fwrite(json.dumps(msg)+"\n")
+                    if 'reason' in msg:
+                        if msg['reason'] == "filled":
+                            self.data_ws.fwrite(json.dumps(msg)+"\n")
 
         def on_message(self, msg):
             if 'price' in msg and 'type' in msg:
