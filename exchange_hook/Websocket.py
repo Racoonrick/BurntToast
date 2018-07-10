@@ -21,6 +21,8 @@ if __name__ == "__main__":
             gdax.WebsocketClient.__init__(self)
             self.PrintComma = False
             self.WebDict = {}
+            self.trade_dict_hold={}
+            
         def on_open(self):
             self.url = "wss://ws-feed.gdax.com/"
             self.products = ["BTC-USD"]
@@ -31,6 +33,8 @@ if __name__ == "__main__":
             self.data_ws.fopen("a")
             self.data_raw = dh("websocket_raw")
             self.data_raw.fopen("a")
+            self.data_trades = dh("websocket_trades")
+            self.data_trades.fopen("a")
 
         def _listen(self):
             while not self.stop:
@@ -40,8 +44,9 @@ if __name__ == "__main__":
                     self.on_error(e)
                 else:
                     self.on_message(msg)
-                    self.data_raw.fwrite(json.dumps(msg))
-                    self.UpdateBuySellRec(msg)
+                    self.RecordTrades(msg)
+                    #self.data_raw.fwrite(json.dumps(msg))
+                    #self.UpdateBuySellRec(msg)
                     msg = {}
                     
 
@@ -52,15 +57,14 @@ if __name__ == "__main__":
 
         def on_close(self):
             self.data_ws.fwrite(json.dumps(self.WebDict))
-            
+            self.data_trades.fclose()
             self.data_ws.fclose()
             print("-- Goodbye! --")
 
         def UpdateBuySellRec(self,msg):
             if 'order_id' in msg:
                 if 'reason' in msg:
-                    if (msg['reason'] == 'canceled') and (msg['order_id'] in self.WebDict):
-                        print("deleted")
+                    if ((msg['reason'] == 'canceled') or (msg['reason'] == 'filled')) and (msg['order_id'] in self.WebDict):
                         del self.WebDict[msg['order_id']]
                 else:
                     order_id = msg['order_id']
@@ -68,16 +72,22 @@ if __name__ == "__main__":
                     del msg['order_id']
                     self.WebDict[order_id] = msg
 
+        def RecordTrades(self,msg):
+            if 'type' in msg and msg['type'] == 'match':
+                self.trade_dict_hold['sequence']=msg['sequence']
+                self.trade_dict_hold['price'] = msg['price']
+                self.trade_dict_hold['size'] = msg['size']
+                self.data_trades.fwrite(json.dumps(self.trade_dict_hold))
+
+
+
 
     
     wsClient = MyWebsocketClient()
     wsClient.start()
     print(wsClient.url, wsClient.products)
     print("\nMessageCount =", "%i \n" % wsClient.message_count)
-    time.sleep(60)
-    #mout = wsClient.return_message()
-
-    #print(mout)
+    time.sleep(10)
     time.sleep(3)
 
     wsClient.close()
