@@ -9,4 +9,4 @@ class db_handle(object):
 		conn = sqlite3.connect(db_name)
 		c = conn.cursor()
 		c.execute('''CREATE TABLE trades
-             (sequence real, price real, size real, stime time)''')
+             (sequence real, price real, size real, stime real)''')
