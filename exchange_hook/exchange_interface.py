@@ -1,46 +1,66 @@
 from data_handling.data_handle import data_handle as dh
 import json
 import gdax
+import os
 
-def toptest():
+current_path = os.path.abspath(os.path.dirname(__file__))
+
+def toptest(): #this exists to test normal functions (with no class)
 	print ("test2")
 
 class exchange:
-	exchangeName="GDAX"
-	loginPath="login.json" #Copy the JSON file to the directory you execute your program from
+	loginPath = os.path.join(current_path, "../../login.json")
 	loginData = dh(loginPath).dictRead()
-	auth_client = gdax.AuthenticatedClient(loginData['key'], 
-		loginData['b64secret'], loginData['passphrase'])
+	auth_client = None
 	
-	def __init__(self):
-		exchange.loginData = dh(loginPath).dictRead()
-		exchange.auth_client = gdax.AuthenticatedClient(exchange.loginData['key'], 
-		exchange.loginData['b64secret'], exchange.loginData['passphrase'])
-		#self.exchangeName = exchangeName
+	def __init__(self, exchangeName):
+		if exchangeName=="GDAX":
+			self.exchangeName="GDAX"
+			exchange.auth_client = gdax.AuthenticatedClient(
+				exchange.loginData['key'],
+				exchange.loginData['b64secret'],
+				exchange.loginData['passphrase'],
+				exchange.loginData['api_url'])
 
 	def accountInfo(self):
-		if exchange.exchangeName == "GDAX":
+		print("TODO: Make accountInfo function")
+
+	def printLoginInfo(self):
+		if self.exchangeName == "GDAX":
 			data = dh(exchange.loginPath).dictRead()
-			print (data['key'])
-			print (data['b64secret'])
-			print (data['passphrase'])
+			print ("key: ", data['key'])
+			print ("b64secret: ", data['b64secret'])
+			print ("passphrase: ", data['passphrase'])
 		else:
 			print("Error: Exchange Not Found")
 	
 	def buy(self, price, size, product_id):
-		if exchange.exchangeName == "GDAX":
+		if self.exchangeName == "GDAX":
 			exchange.auth_client.buy(price = price,
-			size = size, product_id = product_id)
+				size = size, product_id = product_id)
 			print('Buy Order Placed')
 			print(' --- ')
-			print('price: ', price)
-			print('size: ', size)
-			print('productId: ', product_id)
+			print('Price: ', price)
+			print('Size: ', size)
+			print('Product: ', product_id)
 		else:
 			print("Error: Exchange Not Found")
-			
+
+	def sell(self, price, size, product_id):
+		if self.exchangeName == "GDAX":
+			exchange.auth_client.sell(price = price,
+				size = size, product_id = product_id)
+			print('Sell Order Placed')
+			print(' --- ')
+			print('Price: ', price)
+			print('Size: ', size)
+			print('Product: ', product_id)
+		else:
+			print("Error: Exchange Not Found")
+
+#this method isn't working
 	def getOrders(self):
-		if exchange.exchangeName == "GDAX":
+		if self.exchangeName == "GDAX":
 			orders = exchange.auth_client.get_orders()
 			print (json.dumps(orders, sort_keys=True, indent=4, separators=(',', ': ')))
 			return orders
@@ -48,20 +68,14 @@ class exchange:
 			print("Error: Exchange Not Found")
 	
 	def printBalances(self):
-		if exchange.exchangeName == "GDAX":
-			for i in exchange.auth_client.get_accounts():
-				# print(i['currency'], i['balance'])
-				print(i)
+		if self.exchangeName == "GDAX":
+			for i in self.auth_client.get_accounts():
+				print(i['currency'], i['balance'])
 		else:
 			print("Error: Exchange Not Found")
 	
-	@staticmethod
+	@staticmethod #this exists to test the behavior of static methods
 	def test():
 		print (exchange.loginData['key'])
 		print (exchange.loginData['b64secret'])
 		print (exchange.loginData['passphrase'])
-
-	# def getBalance(self):
-	# 	if exchangeName =="GDAX":
-			
-	# 	return
