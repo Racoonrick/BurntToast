@@ -1,6 +1,7 @@
 import gdax
 import data_handle
 
+
 public_client = gdax.PublicClient()
 #print(public_client.get_currencies())
 
