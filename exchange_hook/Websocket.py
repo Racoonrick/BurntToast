@@ -9,6 +9,7 @@ import json
 
 from gdax      import WebsocketClient
 from threading import Thread
+from datetime import datetime
 from websocket import create_connection, WebSocketConnectionClosedException
 from data_handling.data_handle import data_handle as dh
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
                 else:
                     self.on_message(msg)
                     self.RecordTrades(msg)
-                    #self.data_raw.fwrite(json.dumps(msg))
+                    self.data_raw.fwrite(json.dumps(msg))
                     #self.UpdateBuySellRec(msg)
                     msg = {}
                     
@@ -74,10 +75,16 @@ if __name__ == "__main__":
 
         def RecordTrades(self,msg):
             if 'type' in msg and msg['type'] == 'match':
-                self.trade_dict_hold['sequence']=msg['sequence']
-                self.trade_dict_hold['price'] = msg['price']
-                self.trade_dict_hold['size'] = msg['size']
+                self.trade_dict_hold['sequence']= int(msg['sequence'])
+                self.trade_dict_hold['price'] = float(msg['price'])
+                self.trade_dict_hold['size'] = float(msg['size'])
+                self.trade_dict_hold['time'] = self.DateToSeconds(msg['time'])
                 self.data_trades.fwrite(json.dumps(self.trade_dict_hold))
+
+        def DateToSeconds(self,msg_time):
+            utc_dt = datetime.strptime(msg_time, '%Y-%m-%dT%H:%M:%S.%fZ')
+            timestamp = (utc_dt - datetime(1970, 1, 1)).total_seconds()
+            return timestamp
 
 
 
