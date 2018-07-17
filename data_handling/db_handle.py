@@ -5,7 +5,7 @@ class db_handle(object):
 	
 	def __init__(self, db_name):
 		self.db_name = db_name
-		self.conn = sqlite3.connect(self.db_name)
+		self.conn = sqlite3.connect(self.db_name, check_same_thread=False)  #brenton: This could cause issues in the future.
 		self.c = self.conn.cursor()
 		try:
 			self.c.execute('''CREATE TABLE trades

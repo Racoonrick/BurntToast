@@ -35,17 +35,17 @@ public_client = gdax.PublicClient()
 
 #################################################################db_handle Stuff
 
-db = db_handle.db_handle("testdb2")
+db = db_handle.db_handle("websocket_trades_db")
 
 #Here are a bunch of Inserts to fill up the database
 
-db.insert_trade(1, 9000, 1, 100)
-db.insert_trade(2, 9000, 1, 100)
-db.insert_trade(4, 9000, 1, 100)
-db.insert_trade(5, 9000, 1, 100)
-db.insert_trade(6, 9000, 1, 100)
+# db.insert_trade(1, 9000, 1, 100)
+# db.insert_trade(2, 9000, 1, 100)
+# db.insert_trade(4, 9000, 1, 100)
+# db.insert_trade(5, 9000, 1, 100)
+# db.insert_trade(6, 9000, 1, 100)
 
-print (db.read_trade_from_seq(6))
+# print (db.read_trade_from_seq(6))
 
 db.print_trades()
 
