@@ -2,49 +2,53 @@ import sqlite3
 
 class db_handle(object):
 	"""docstring for db_handle"""
-	# def __init__(self):
-	# 	#Hi
+	
+	def __init__(self, db_name):
+		self.db_name = db_name
+		self.conn = sqlite3.connect(self.db_name)
+		self.c = self.conn.cursor()
+		try:
+			self.c.execute('''CREATE TABLE trades
+				(sequence integer, price real, size real, stime real)''')
+		except sqlite3.OperationalError:
+			print(db_name, "Exists")
+			print("Connecting to Database", self.db_name)
+			print()
 
-	def create_db(self,db_name):
-		conn = sqlite3.connect(db_name)
-		c = conn.cursor()
-		c.execute('''CREATE TABLE trades
-			(sequence integer, price real, size real, stime real)''')
+# This Functionality (formerly create_db()) was moved to __init__
+	# def create_table(self):
+	# 	try:
+	# 		self.c.execute('''CREATE TABLE trades
+	# 			(sequence integer, price real, size real, stime real)''')
+	# 	except sqlite3.OperationalError:
+	# 		print("Database Already Exists\n")
 			
-	def insert_trade(self, db_name, sequence, price, size, stime):
-		conn = sqlite3.connect(db_name)
-		c = conn.cursor()
-		
+	def insert_trade(self, sequence, price, size, stime):
+
 		trade = [(sequence, price, size, stime)]
 		
-		c.executemany('INSERT into trades VALUES (?,?,?,?)', trade)
+		self.c.executemany('INSERT into trades VALUES (?,?,?,?)', trade)
 		
-		conn.commit()
+		self.conn.commit()
 		
-	def read_trade(self, db_name, sequence): #brenton this just reads the first line in the database
-		conn = sqlite3.connect(db_name)
-		c = conn.cursor()
+	def read_trade(self): #brenton: this just reads the first line in the database
+
+		self.c.execute('SELECT * FROM trades')
 		
-		c.execute('SELECT * FROM trades')
+		return self.c.fetchone()
 		
-		return c.fetchone()
-		
-	def read_trade_from_seq(self, db_name, sequence):
-		conn = sqlite3.connect(db_name)
-		c = conn.cursor()
+	def read_trade_from_seq(self, sequence):
 		
 		sql_seq = (sequence,)
 		
-		c.execute('SELECT * FROM trades WHERE sequence=?', sql_seq)
+		self.c.execute('SELECT * FROM trades WHERE sequence=?', sql_seq)
 		
-		return c.fetchone()
+		return self.c.fetchone()
 		
-	def print_trades(self, db_name):
-		conn = sqlite3.connect(db_name)
-		c = conn.cursor()
-		for row in c.execute('SELECT * FROM trades ORDER BY sequence'):
+	def print_trades(self):
+		
+		print()
+		print(" Dump Trades ")
+		print("-------------")
+		for row in self.c.execute('SELECT * FROM trades ORDER BY sequence'):
 			print (row)
-
-	# def open_db(self, db_name)
-	# 	conn = sqlite3.connect(db_name)
-	# 	c = conn.cursor()
