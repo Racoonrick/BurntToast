@@ -12,6 +12,7 @@ from threading import Thread
 from datetime import datetime
 from websocket import create_connection, WebSocketConnectionClosedException
 from data_handling.data_handle import data_handle as dh
+from data_handling.db_handle import db_handle as dbh
 
 if __name__ == "__main__":
     import gdax
@@ -36,6 +37,8 @@ if __name__ == "__main__":
             self.data_raw.fopen("a")
             self.data_trades = dh("websocket_trades")
             self.data_trades.fopen("a")
+            
+            self.database_trades = dbh("websocket_trades_db")
 
         def _listen(self):
             while not self.stop:
@@ -48,6 +51,9 @@ if __name__ == "__main__":
                     self.RecordTrades(msg)
                     self.data_raw.fwrite(json.dumps(msg))
                     #self.UpdateBuySellRec(msg)
+                    
+                    self.RecordTrades_db(msg)
+                    
                     msg = {}
                     
 
@@ -80,6 +86,19 @@ if __name__ == "__main__":
                 self.trade_dict_hold['size'] = float(msg['size'])
                 self.trade_dict_hold['time'] = self.DateToSeconds(msg['time'])
                 self.data_trades.fwrite(json.dumps(self.trade_dict_hold))
+                
+        def RecordTrades_db(self,msg):
+            if 'type' in msg and msg['type'] == 'match':
+                self.trade_dict_hold['sequence']= int(msg['sequence'])
+                self.trade_dict_hold['price'] = float(msg['price'])
+                self.trade_dict_hold['size'] = float(msg['size'])
+                self.trade_dict_hold['time'] = self.DateToSeconds(msg['time'])
+                self.database_trades.insert_trade(self.trade_dict_hold['sequence'],
+                                                self.trade_dict_hold['price'],
+                                                self.trade_dict_hold['size'],
+                                                self.trade_dict_hold['time'])
+                self.database_trades.insert_trade(1,2,3,4)
+                print("Recording a Trade ======================================")
 
         def DateToSeconds(self,msg_time):
             utc_dt = datetime.strptime(msg_time, '%Y-%m-%dT%H:%M:%S.%fZ')
