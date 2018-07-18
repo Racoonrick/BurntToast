@@ -1,5 +1,10 @@
 {
 	"param1": "1",
 	"param2": "4",
-    "param3": "3"
+    "param3": "3",
+    "quantity": ".01",
+    "aggression": "1.09",
+    "going price": "",
+    "price target": "",
+    "buy/sell": ""
 }
