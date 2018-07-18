@@ -2,6 +2,7 @@ from data_handling.data_handle import data_handle
 from exchange_hook.exchange_interface import exchange
 import time
 import os.path
+import json
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -14,20 +15,19 @@ class trading_heart:
         print("init")
 
     def trade(self, params):
-        print("Trade")
-        print("Trade Param 2: ", params['param2'])  #Proof that Parameters are read from bot_params.json
-        #self.ex.printBalances()                     #Proof that Trading Heart is interacting with GDAX
         
-        ticker_price = self.ex.auth_client.get_product_ticker('BTC-USD')['price']
+        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
+        self.pricetarget = ticker_price * float(params['buy aggression'])
         
-        print("Ticker Price: ", ticker_price, "\n")
-        print("Buy/Sell: ", self.buyorsell, "\n")
+        print("Ticker Price: ", ticker_price)
+        print("Buy/Sell: ", self.buyorsell)
+        print("Price Target: ", self.pricetarget, "\n")
         
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
             if self.buyorsell == "buy":
                 self.ex.buy(ticker_price, params['quantity'], 'BTC-USD')
                 #do a market buy
-                self.pricetarget *= float(params['aggression'])
+                self.pricetarget *= float(params['sell aggression'])
                 self.buyorsell = "sell"  # Alternate between Buy & Sell
                 return
             if self.buyorsell == "sell":
@@ -44,14 +44,20 @@ def main():
 	#This is the Main InfiniteLoop
     while True:
         #Read Configuration Options
-        tradeConf = data_handle(confPath).dictRead()
-        # print("Trade Param 1: ", tradeConf['param1']) #Param Read Test
+        try:
+            tradeConf = data_handle(confPath).dictRead()
+        except json.decoder.JSONDecodeError:
+            print("bot_params.json format error")
+            print("Using Values:")
+            print("quantity", tradeConf['quantity'])
+            print("buy aggression", tradeConf['buy aggression'])
+            print("sell aggression",tradeConf['sell aggression'])
         
         #Execute Trading Heart
         heart.trade(tradeConf)
         
         #Pause
-        time.sleep(10)
+        time.sleep(5)
 
 if __name__ == "__main__":
     try:
