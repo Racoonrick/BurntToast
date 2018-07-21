@@ -55,9 +55,13 @@ public_client = gdax.PublicClient()
 
 ################################################################Exchange Stuff
 
-# ex=exchange("GDAX")
+ex=exchange("GDAX")
 
-# # ex.auth_client.cancel_all()
+ex.getOrders()
+
+# ex.buy("3000.1", ".002", 'BTC-USD')
+
+ex.auth_client.cancel_all()
 
 # if ex.getOrders() == [[]]:
 # 	print("Yes")

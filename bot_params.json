@@ -2,7 +2,7 @@
 	"param1": "1",
 	"param2": "4",
     "param3": "3",
-    "quantity": ".01",
-    "buy aggression": "1.00001",
-    "sell aggression": "1.09"
+    "quantity": ".0011",
+    "buy buffer": "-.04",
+    "sell aggression": "1.009"
 }

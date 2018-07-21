@@ -10,31 +10,23 @@ class trading_heart:
     def __init__(self, params):
         self.params=params
         self.ex=exchange("GDAX")
-        self.buyorsell = "buy"
-        self.pricetarget = 0.0
+        self.buytarget = 0.0
+        self.seltarget = 0.0
         print("init")
 
     def trade(self, params):
-        
-        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
-        self.pricetarget = ticker_price * float(params['buy aggression'])
-        
-        print("Ticker Price: ", ticker_price)
-        print("Buy/Sell: ", self.buyorsell)
-        print("Price Target: ", self.pricetarget, "\n")
-        
+
+        print("Buy Target: ", self.buytarget)
+        print("Sel Target: ", self.seltarget, "\n")
+
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
-            if self.buyorsell == "buy":
-                self.ex.buy(ticker_price, params['quantity'], 'BTC-USD')
-                #do a market buy
-                self.pricetarget *= float(params['sell aggression'])
-                self.buyorsell = "sell"  # Alternate between Buy & Sell
-                return
-            if self.buyorsell == "sell":
-                if ticker_price > self.pricetarget:
-                    self.ex.sell(self.pricetarget, params['quantity'], 'BTC-USD')
-                    self.buyorsell = "buy"  # Alternate between Buy & Sell
-                return
+            ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
+            self.buytarget = ticker_price + float(params['buy buffer'])
+            self.seltarget = ticker_price * float(params['sell aggression'])
+            # self.ex.buy(float(self.buytarget), float(params['quantity']), 'BTC-USD')
+            self.ex.sell(float(self.seltarget), float(params['quantity']), 'BTC-USD')
+            
+            # self.ex.sell("12000.11", "1.0", 'BTC-USD')
 
 def main():
     confPath = os.path.join(current_path, "./bot_params.json")
@@ -50,7 +42,7 @@ def main():
             print("bot_params.json format error")
             print("Using Values:")
             print("quantity", tradeConf['quantity'])
-            print("buy aggression", tradeConf['buy aggression'])
+            print("buy buffer", tradeConf['buy buffer'])
             print("sell aggression",tradeConf['sell aggression'])
         
         #Execute Trading Heart
