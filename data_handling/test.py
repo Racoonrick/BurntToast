@@ -36,34 +36,46 @@ public_client = gdax.PublicClient()
 
 
 #################################################################db_handle Stuff
+test_str = '(sequence integer, price real, size real, time real)'
+db = db_handle.db_handle("websocket_trades_db",'trades',test_str)
 
-# db = db_handle.db_handle("websocket_trades_db")
+#Here are a bunch of Inserts to fill up the database
+#self.trade_dict_hold
+data = {'sequence':1,'price':9000,'size':1,'time':100}
+db.insert_trade(data)
+data = {'sequence':2,'price':9000,'size':1,'time':100}
+db.insert_trade(data)
+data = {'sequence':3,'price':9000,'size':1,'time':100}
+db.insert_trade(data)
+data = {'sequence':4,'price':9000,'size':1,'time':100}
+db.insert_trade(data)
+data = {'sequence':5,'price':9000,'size':1,'time':100}
+db.insert_trade(data)
 
-# #Here are a bunch of Inserts to fill up the database
+print (db.read_trade_from_seq(6))
 
-# # db.insert_trade(1, 9000, 1, 100)
-# # db.insert_trade(2, 9000, 1, 100)
-# # db.insert_trade(4, 9000, 1, 100)
-# # db.insert_trade(5, 9000, 1, 100)
-# # db.insert_trade(6, 9000, 1, 100)
+db.print_trades()
 
-# # print (db.read_trade_from_seq(6))
-
-# db.print_trades()
-
-# print("End of Test")
-
+print([description[0] for description in db.c.description])
+print("End of Test")
+array1 = []
+i = 0
+d = {'l':0,'a':1,'b':2,'c':3}
+for keys in d.keys():
+	array1.insert(i,d[keys])
+	i=i+1
+print(array1)
 ################################################################Exchange Stuff
 
-ex=exchange("GDAX")
+# ex=exchange("GDAX")
 
-ex.getOrders()
+# ex.getOrders()
 
-# ex.buy("3000.1", ".002", 'BTC-USD')
+# # ex.buy("3000.1", ".002", 'BTC-USD')
 
-ex.auth_client.cancel_all()
+# ex.auth_client.cancel_all()
 
-# if ex.getOrders() == [[]]:
-# 	print("Yes")
-# else:
-# 	print("no")
+# # if ex.getOrders() == [[]]:
+# # 	print("Yes")
+# # else:
+# # 	print("no")
