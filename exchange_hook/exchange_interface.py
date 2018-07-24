@@ -9,7 +9,7 @@ def toptest(): #this exists to test normal functions (with no class)
 	print ("test2")
 
 class exchange:
-	loginPath = os.path.join(current_path, "../../login.json")
+	loginPath = os.path.join(current_path, "../../login.sandbox.json")
 	loginData = dh(loginPath).dictRead()
 	auth_client = None
 	
@@ -34,27 +34,27 @@ class exchange:
 		else:
 			print("Error: Exchange Not Found")
 	
-	def buy(self, price, size, product_id):
+	def buy(self, price_param, size_param, product_id_param):
 		if self.exchangeName == "GDAX":
-			exchange.auth_client.buy(price = price,
-				size = size, product_id = product_id)
+			exchange.auth_client.buy(price = price_param,
+				size = size_param, product_id = product_id_param)
 			print('Buy Order Placed')
 			print(' --- ')
-			print('Price: ', price)
-			print('Size: ', size)
-			print('Product: ', product_id)
+			print('Price: ', price_param)
+			print('Size: ', size_param)
+			print('Product: ', product_id_param)
 		else:
 			print("Error: Exchange Not Found")
 
-	def sell(self, price, size, product_id):
+	def sell(self, price_param, size_param, product_id_param):
 		if self.exchangeName == "GDAX":
-			exchange.auth_client.sell(price = price,
-				size = size, product_id = product_id)
+			exchange.auth_client.sell(price = price_param,
+				size = size_param, product_id = product_id_param)
 			print('Sell Order Placed')
 			print(' --- ')
-			print('Price: ', price)
-			print('Size: ', size)
-			print('Product: ', product_id)
+			print('Price: ', price_param)
+			print('Size: ', size_param)
+			print('Product: ', product_id_param)
 		else:
 			print("Error: Exchange Not Found")
 

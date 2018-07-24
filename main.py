@@ -21,12 +21,16 @@ class trading_heart:
 
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
             ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
+            
             self.buytarget = ticker_price + float(params['buy buffer'])
             self.seltarget = ticker_price * float(params['sell aggression'])
-            # self.ex.buy(float(self.buytarget), float(params['quantity']), 'BTC-USD')
-            self.ex.sell(float(self.seltarget), float(params['quantity']), 'BTC-USD')
+
+            self.buytarget_str ='%.2f'% self.buytarget
+            self.seltarget_str ='%.2f'% self.seltarget
+
+            self.ex.buy(self.buytarget_str, str(params['quantity']), 'BTC-USD')
+            self.ex.sell(self.seltarget_str, str(params['quantity']), 'BTC-USD')
             
-            # self.ex.sell("12000.11", "1.0", 'BTC-USD')
 
 def main():
     confPath = os.path.join(current_path, "./bot_params.json")
