@@ -1,8 +1,7 @@
 {
-	"param1": "1",
-	"param2": "4",
-    "param3": "3",
     "quantity": ".002",
-    "buy buffer": ".04",
-    "sell aggression": "1.001"
+    "aggression": "1.001",
+    "buy buffer": "1.001",
+    "sell aggression": "1.001",
+    "price_target": 8482.84
 }

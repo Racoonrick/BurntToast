@@ -58,11 +58,10 @@ class exchange:
 		else:
 			print("Error: Exchange Not Found")
 
-#this method isn't working
 	def getOrders(self):
 		if self.exchangeName == "GDAX":
 			orders = exchange.auth_client.get_orders()
-			print (json.dumps(orders, sort_keys=True, indent=4, separators=(',', ': ')))
+			# print (json.dumps(orders, sort_keys=True, indent=4, separators=(',', ': ')))
 			return orders
 		else:
 			print("Error: Exchange Not Found")

@@ -5,41 +5,80 @@ import os.path
 import json
 
 current_path = os.path.abspath(os.path.dirname(__file__))
+confPath = os.path.join(current_path, "./bot_params.json")
 
 class trading_heart:
     def __init__(self, params):
+        self.start_time = time.time()
+
         self.params=params
         self.ex=exchange("GDAX")
-        self.buytarget = 0.0
-        self.seltarget = 0.0
-        print("init")
+        # self.ex.getOrders()
+        # self.ex.auth_client.cancel_all()
+
+        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
+        self.price_target = ticker_price
+        self.buy_limit = self.price_target / float(params['aggression'])
+        self.sel_limit = self.price_target * float(params['aggression'])
+        self.buyorsell = "buy"
+
         self.data_trades = data_handle("trades_record")
         self.data_trades.fopen("a")
 
-    def trade(self, params):
+        bot_params_file = data_handle(confPath)
+        tradeConf = bot_params_file.dictRead()
+        tradeConf['price_target'] = self.price_target
+        bot_params_file.fopen("w")
+        bot_params_file.fwrite(json.dumps(tradeConf, indent=4))
+        bot_params_file.fclose()
 
-        print("Buy Target: ", self.buytarget)
-        print("Sel Target: ", self.seltarget, "\n")
+    def patiently_trade(self, params):
+
+        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
+
+        print("  Ticker:  ", ticker_price)
+        print("  Target:  ", self.price_target)
+        print("Buy Limit: ", '%.2f'% self.buy_limit)
+        print("Sel Limit: ", '%.2f'% self.sel_limit)
 
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
+
             #Opens data_trades for write
             self.data_trades.fopen("a")
 
-            ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
-            
-            self.buytarget = ticker_price + float(params['buy buffer'])
-            self.seltarget = ticker_price * float(params['sell aggression'])
+            self.buytarget = self.price_target / float(params['aggression'])
+            self.seltarget = self.price_target * float(params['aggression'])
 
-            self.buytarget_str ='%.2f'% self.buytarget
-            self.seltarget_str ='%.2f'% self.seltarget
+            self.buy_limit_str ='%.2f'% self.buy_limit
+            self.sel_limit_str ='%.2f'% self.sel_limit
 
-            self.ex.buy(self.buytarget_str, str(params['quantity']), 'BTC-USD')
-            self.RecordTrades("buy",self.buytarget_str,str(params['quantity']))
-            self.ex.sell(self.seltarget_str, str(params['quantity']), 'BTC-USD')
-            self.RecordTrades("sell",self.seltarget_str,str(params['quantity']))
+            if self.buyorsell == "buy":
+                self.ex.buy(self.buy_limit_str, str(params['quantity']), 'BTC-USD')
+                self.RecordTrades("buy",self.buy_limit_str,str(params['quantity']))
+                self.buyorsell="sell"
+
+            if self.buyorsell == "sell":
+                self.ex.sell(self.sel_limit_str, str(params['quantity']), 'BTC-USD')
+                self.RecordTrades("sell",self.sel_limit_str,str(params['quantity']))
+                self.buyorsell="buy"
+
+            #Reset Trade Timer
+            self.start_time = time.time()
 
             #Closes file for recording trading data
             self.data_trades.fclose()
+        else:
+            if self.buyorsell == "sell":
+                print("Open Order: Buy")
+            elif self.buyorsell == "buy":
+                print("Open Order: Sell")
+            else:
+                print("Error with Open Orders")
+            print()
+
+    #Time since the last order was placed (in seconds)
+    def getLastTradeTimer(self):
+        return time.time() - self.start_time
 
     def RecordTrades(self,trade_type,target,quantity):
         self.trade_dict_hold = {}
@@ -49,7 +88,7 @@ class trading_heart:
         self.data_trades.fwrite(json.dumps(self.trade_dict_hold))        
 
 def main():
-    confPath = os.path.join(current_path, "./bot_params.json")
+    
     tradeConf = data_handle(confPath).dictRead()
     heart=trading_heart(tradeConf)
  	
@@ -62,11 +101,11 @@ def main():
             print("bot_params.json format error")
             print("Using Values:")
             print("quantity", tradeConf['quantity'])
-            print("buy buffer", tradeConf['buy buffer'])
+            print("buy aggression", tradeConf['buy aggression'])
             print("sell aggression",tradeConf['sell aggression'])
         
         #Execute Trading Heart
-        heart.trade(tradeConf)
+        heart.patiently_trade(tradeConf)
         
         #Pause
         time.sleep(5)
