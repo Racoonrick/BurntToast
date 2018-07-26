@@ -70,12 +70,17 @@ class App(QMainWindow):
 		self.m = PlotCanvas(self, width=5, height=4)
 		self.m.move(0,0)
 
-		button = QPushButton('PyQt5 button', self)
+		button = QPushButton('Refresh', self)
 		button.setToolTip('This s an example button')
 		button.move(750,0)
-		button.resize(140,100)
+		button.resize(70,50)
 		button.clicked.connect(self.on_click)
 
+		button2 = QPushButton('Reset Plot', self)
+		button2.setToolTip('Set offset to 0')
+		button2.move(820,0)
+		button2.resize(70,50)
+		button2.clicked.connect(self.reset_plot)
 
 		self.sl = QSlider(QtCore.Qt.Horizontal,self)
 		self.sl.move(0,550)
@@ -90,9 +95,13 @@ class App(QMainWindow):
 
 	def on_click(self):
 		self.m.plot()
+
+	def reset_plot(self):
+		self.m.DefaultPlot()
 	def wheelEvent(self, event):
-		self.x = 50*event.angleDelta().y()/120
-		self.m.SlSlide(self.x)
+		slide_boost = 300
+		self.x = slide_boost*event.angleDelta().y()/120
+		self.m.WheelZoom(self.x)
 		print(self.x)
 
 		
@@ -103,6 +112,8 @@ class PlotCanvas(FigureCanvas):
 	def __init__(self, parent=None, width=5, height=4, dpi=150):
 		self.a1 = 0 
 		self.a2 = 500
+		self.d1 = 0
+		self.d2 = 0
 		self.pricev,self.sizev,self.timev = self.ParseData()
 		fig = Figure(figsize=(width, height), dpi=dpi)
 		self.axes = fig.add_subplot(111)
@@ -126,22 +137,31 @@ class PlotCanvas(FigureCanvas):
 
 	def plot(self):
 		self.pricev,self.sizev,self.timev = self.ParseData()
+		self.alen = len(self.timev)
 		self.update_plot()
 		
 	def SlZoom(self,sl_val=10):
-		alen = len(self.timev)
-		amid = alen/2
+		amid = self.alen/2
 		if sl_val == 100:
-			xsubt = alen*(99/100)
+			self.scale = (99/100)
 		else:
-			xsubt = alen*((100-sl_val)/100)
-		self.a1 = math.ceil(alen-xsubt)
-		self.a2 = alen
+			self.scale = ((100-sl_val)/100)
+		xsubt = self.alen*self.scale
+		self.a1 = max(0,min(self.alen,math.ceil(self.alen-xsubt+self.d1)))
+		self.a2 = math.ceil(min(self.alen,self.alen + self.d2))
+		print(self.a1,self.a2)
 		self.update_plot()
 
-	def SlSlide(self,sl_slide):
+	def WheelZoom(self,sl_slide):
+		self.d1 += sl_slide/self.scale
+		self.d2 += sl_slide/self.scale
 		self.a1 = math.ceil(self.a1 + sl_slide)
 		self.a2 = math.ceil(self.a2 + sl_slide)
+		self.update_plot()
+	def DefaultPlot(self):
+		self.a1 = 0
+		self.a2 = self.alen
+		self.d1,self.d2 = 0,0
 		self.update_plot()
 
 	def ParseData(self):
