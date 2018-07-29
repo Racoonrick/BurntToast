@@ -102,7 +102,6 @@ class App(QMainWindow):
 		slide_boost = 300
 		self.x = slide_boost*event.angleDelta().y()/120
 		self.m.WheelZoom(self.x)
-		print(self.x)
 
 		
 
@@ -115,6 +114,8 @@ class PlotCanvas(FigureCanvas):
 		self.d1 = 0
 		self.d2 = 0
 		self.pricev,self.sizev,self.timev = self.ParseData()
+		self.mpricev,self.msizev,self.mtimev = self.ParseMyTrade()
+
 		fig = Figure(figsize=(width, height), dpi=dpi)
 		self.axes = fig.add_subplot(111)
 
@@ -131,15 +132,23 @@ class PlotCanvas(FigureCanvas):
 		ax = self.figure.add_subplot(111)
 		ax.figure.clear()
 		ax = self.figure.add_subplot(111)
-		ax.plot(self.timev[self.a1:self.a2],self.pricev[self.a1:self.a2], 'r-',linewidth=0.2)
+		ax.plot(self.timev[:],self.pricev[:], 'r-',linewidth=0.2)
+		ax.plot(self.mtimev[:],self.mpricev[:], 'go',linewidth=5)	
+		ax.axes.set_xlim(self.timev[self.a1-1],self.timev[self.a2-1])
 		ax.set_title('PyQt Matplotlib Example')
 		self.draw()
 
 	def plot(self):
 		self.pricev,self.sizev,self.timev = self.ParseData()
+		self.mpricev,self.msizev,self.mtimev = self.ParseMyTrade()
 		self.alen = len(self.timev)
 		self.update_plot()
+	
+	def AxesScale(self):
+		max_x = math.max(self.timev)
+		min_x = math.min(self.timev)
 		
+
 	def SlZoom(self,sl_val=10):
 		amid = self.alen/2
 		if sl_val == 100:
@@ -155,8 +164,8 @@ class PlotCanvas(FigureCanvas):
 	def WheelZoom(self,sl_slide):
 		self.d1 += sl_slide/self.scale
 		self.d2 += sl_slide/self.scale
-		self.a1 = math.ceil(self.a1 + sl_slide)
-		self.a2 = math.ceil(self.a2 + sl_slide)
+		self.a1 = max(0,math.ceil(self.a1 + sl_slide))
+		self.a2 = min(self.alen,math.ceil(self.a2 + sl_slide))
 		self.update_plot()
 	def DefaultPlot(self):
 		self.a1 = 0
@@ -164,14 +173,30 @@ class PlotCanvas(FigureCanvas):
 		self.d1,self.d2 = 0,0
 		self.update_plot()
 
+	def ParseMyTrade(self):
+		db_path ="C:/Users/Ricky/Documents/Work/BurntToast/data_handling/fake_trades"
+		tname = 'trades'
+		tcolumns = '(sequence integer, price real, size real, time real)'
+		algo_dbh = dbh(db_path,tname,tcolumns)
+		algo_dbh.c.execute('SELECT price, size, time FROM trades')
+		data = algo_dbh.c.fetchall()
+
+		pricev = []
+		sizev = []
+		timev = []
+		for row in data:
+			pricev.append(row[0])
+			sizev.append(row[1])
+			timev.append(row[2])
+
+		return pricev,sizev,timev;
+
 	def ParseData(self):
 		db_path ="C:/Users/Ricky/Documents/Work/BurntToast/exchange_hook/websocket_trades_db"
 		tname = 'trades'
 		tcolumns = '(sequence integer, price real, size real, time real)'
 		algo_dbh = dbh(db_path,tname,tcolumns)
-		#algo_dbh.conn.execute('SELECT * FROM trades ORDER BY sequence ASC')
 		algo_dbh.c.execute('SELECT price, size, time FROM trades')
-		#algo_dbh.print_trades()
 		data = algo_dbh.c.fetchall()
 
 		#print(data)

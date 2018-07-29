@@ -15,10 +15,12 @@ from data_handling.data_handle import data_handle as dh
 from data_handling.db_handle import db_handle as dbh
 import gdax
 import time
+import os
 
 
 class MyWebsocketClient(gdax.WebsocketClient):
     def __init__(self):
+        self.clear = lambda: os.system('cls')
         gdax.WebsocketClient.__init__(self)
         self.PrintComma = False
         self.WebDict = {}
@@ -51,6 +53,10 @@ class MyWebsocketClient(gdax.WebsocketClient):
                 msg = json.loads(self.ws.recv())
             except Exception as e:
                 self.on_error(e)
+                #Added these lines to restart the websocket in the event of an error
+                #This may not work
+                self.thread.close()
+                self.start()
             else:
                 self.on_message(msg)
                 #self.RecordTrades(msg)
@@ -72,7 +78,9 @@ class MyWebsocketClient(gdax.WebsocketClient):
         self.data_trades.fclose()
         self.data_ws.fclose()
         print("-- Goodbye! --")
-
+    def on_error(self, e):
+        print(e)
+        return
     def UpdateBuySellRec(self,msg):
         if 'order_id' in msg:
             if 'reason' in msg:
@@ -101,7 +109,8 @@ class MyWebsocketClient(gdax.WebsocketClient):
         if 'type' in msg and msg['type'] == 'match':
             trade_data = self.MsgToDict(msg)
             self.database_trades.insert_trade(trade_data)
-            print("Recording a Trade ======================================")
+            self.clear()
+            print("Trade: "+msg['price']+" Time: "+str(datetime.now()))
 
     def DateToSeconds(self,msg_time):
         utc_dt = datetime.strptime(msg_time, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -115,8 +124,8 @@ if __name__ == "__main__":
     wsClient = MyWebsocketClient()
     wsClient.start()
     print(wsClient.url, wsClient.products)
-    print("\nMessageCount =", "%i \n" % wsClient.message_count)
-    time.sleep(1)
-    time.sleep(3)
-    wsClient.database_trades.print_trades()
-    wsClient.close()
+    i = 0
+    while True:
+        i = 1
+
+
