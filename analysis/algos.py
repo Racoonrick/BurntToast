@@ -101,21 +101,24 @@ class App(QMainWindow):
 	def wheelEvent(self, event):
 		slide_boost = 300
 		self.x = slide_boost*event.angleDelta().y()/120
-		self.m.WheelZoom(self.x)
-
-		
+		self.m.WheelShift(self.x)
 
 
 class PlotCanvas(FigureCanvas):
  
 	def __init__(self, parent=None, width=5, height=4, dpi=150):
-		self.a1 = 0 
-		self.a2 = 500
 		self.d1 = 0
 		self.d2 = 0
 		self.pricev,self.sizev,self.timev = self.ParseData()
 		self.mpricev,self.msizev,self.mtimev = self.ParseMyTrade()
-
+		self.xa = min(self.timev)
+		self.xb = max(self.timev)
+		self.xcenter = (self.xb-self.xa)/2+self.xa
+		print(self.xcenter)
+		self.min_x = self.xa
+		self.max_x = self.xb
+		self.x_wid = self.max_x - self.min_x
+		print(self.x_wid)
 		fig = Figure(figsize=(width, height), dpi=dpi)
 		self.axes = fig.add_subplot(111)
 
@@ -132,9 +135,12 @@ class PlotCanvas(FigureCanvas):
 		ax = self.figure.add_subplot(111)
 		ax.figure.clear()
 		ax = self.figure.add_subplot(111)
+		ax.axes.set_xlim(self.xa,self.xb)
 		ax.plot(self.timev[:],self.pricev[:], 'r-',linewidth=0.2)
-		ax.plot(self.mtimev[:],self.mpricev[:], 'go',linewidth=5)	
-		ax.axes.set_xlim(self.timev[self.a1-1],self.timev[self.a2-1])
+		ax.plot(self.mtimev[:],self.mpricev[:], 'go',linewidth=5)
+
+
+		print(self.xa,self.xb)
 		ax.set_title('PyQt Matplotlib Example')
 		self.draw()
 
@@ -150,27 +156,44 @@ class PlotCanvas(FigureCanvas):
 		
 
 	def SlZoom(self,sl_val=10):
-		amid = self.alen/2
+
 		if sl_val == 100:
-			self.scale = (99/100)
+			scale = (99/100)
 		else:
-			self.scale = ((100-sl_val)/100)
-		xsubt = self.alen*self.scale
-		self.a1 = max(0,min(self.alen,math.ceil(self.alen-xsubt+self.d1)))
-		self.a2 = math.ceil(min(self.alen,self.alen + self.d2))
-		print(self.a1,self.a2)
+			scale = ((100-sl_val)/100)
+		if self.xcenter - self.x_wid/2*scale > min(self.timev) :
+			self.xa = self.xcenter - self.x_wid/2*scale
+		else:
+			self.xa = self.min_x
+		if self.xcenter + self.x_wid/2*scale < max(self.timev):
+			self.xb = self.xcenter + self.x_wid/2*scale
+		else:
+			self.xb = self.max_x
+		print(self.xcenter)
 		self.update_plot()
 
-	def WheelZoom(self,sl_slide):
-		self.d1 += sl_slide/self.scale
-		self.d2 += sl_slide/self.scale
-		self.a1 = max(0,math.ceil(self.a1 + sl_slide))
-		self.a2 = min(self.alen,math.ceil(self.a2 + sl_slide))
+	def WheelShift(self,sl_slide):
+		print(self.xa,self.xb)
+		if self.xa + sl_slide > min(self.timev):
+			self.xa = self.xa + sl_slide
+		else:
+			self.xa = min(self.timev)
+
+		if self.xb + sl_slide < self.max_x:
+			self.xb = self.xb + sl_slide
+		else:
+			self.xb = self.max_x-1
+		self.xcenter = (self.xb-self.xa)/2+self.xa
+		print("centerrrr",self.xcenter)
+
 		self.update_plot()
 	def DefaultPlot(self):
-		self.a1 = 0
-		self.a2 = self.alen
-		self.d1,self.d2 = 0,0
+		self.xa = min(self.timev)
+		self.xb = max(self.timev)
+		self.xcenter = (self.xb-self.xa)/2+self.xa
+		self.min_x = self.xa
+		self.max_x = self.xb
+		self.x_wid = self.max_x - self.min_x
 		self.update_plot()
 
 	def ParseMyTrade(self):
@@ -208,6 +231,7 @@ class PlotCanvas(FigureCanvas):
 			sizev.append(row[1])
 			timev.append(row[2])
 
+		self.max_x = max(timev)
 		return pricev,sizev,timev;
 
 
@@ -215,4 +239,3 @@ if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	ex = App()
 	sys.exit(app.exec_())
-
