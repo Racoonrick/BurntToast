@@ -16,7 +16,7 @@ class trading_heart:
         # self.ex.getOrders()
         # self.ex.auth_client.cancel_all()
 
-        ticker_price = float(self.ex.auth_client.get_product_ticker('LTC-USD')['price'])
+        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
         self.price_target = ticker_price
         self.buy_limit = self.price_target / float(params['aggression'])
         self.sel_limit = self.price_target * float(params['aggression'])
@@ -34,12 +34,14 @@ class trading_heart:
 
     def patiently_trade(self, params):
 
-        ticker_price = float(self.ex.auth_client.get_product_ticker('LTC-USD')['price'])
+        ticker_price = float(self.ex.auth_client.get_product_ticker('BTC-USD')['price'])
 
+        print()
         print("  Ticker:  ", ticker_price)
         print("  Target:  ", self.price_target)
         print("Buy Limit: ", '%.2f'% self.buy_limit)
         print("Sel Limit: ", '%.2f'% self.sel_limit)
+        print()
 
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
 
@@ -53,12 +55,11 @@ class trading_heart:
             self.sel_limit_str ='%.2f'% self.sel_limit
 
             if self.buyorsell == "buy":
-                self.ex.buy(self.buy_limit_str, str(params['quantity']), 'LTC-USD')
+                self.ex.buy(self.buy_limit_str, str(params['quantity']), 'BTC-USD')
                 self.RecordTrades("buy",self.buy_limit_str,str(params['quantity']))
                 self.buyorsell="sell"
-
-            if self.buyorsell == "sell":
-                self.ex.sell(self.sel_limit_str, str(params['quantity']), 'LTC-USD')
+            elif self.buyorsell == "sell":
+                self.ex.sell(self.sel_limit_str, str(params['quantity']), 'BTC-USD')
                 self.RecordTrades("sell",self.sel_limit_str,str(params['quantity']))
                 self.buyorsell="buy"
 
