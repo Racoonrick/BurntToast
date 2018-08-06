@@ -28,9 +28,7 @@ class trading_heart:
         bot_params_file = data_handle(confPath)
         tradeConf = bot_params_file.dictRead()
         tradeConf['price_target'] = self.price_target
-        bot_params_file.fopen("w")
-        bot_params_file.fwrite(json.dumps(tradeConf, indent=4))
-        bot_params_file.fclose()
+
 
     def patiently_trade(self, params):
 
@@ -41,7 +39,7 @@ class trading_heart:
         print("  Target:  ", self.price_target)
         print("Buy Limit: ", '%.2f'% self.buy_limit)
         print("Sel Limit: ", '%.2f'% self.sel_limit)
-        print()
+        print(self.ex.getOrders())
 
         if self.ex.getOrders() == [[]]:  # Only place order if no open orders
 
@@ -97,6 +95,7 @@ def main():
     while True:
         #Read Configuration Options
         try:
+
             tradeConf = data_handle(confPath).dictRead()
         except json.decoder.JSONDecodeError:
             print("bot_params.json format error")
