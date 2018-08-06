@@ -55,7 +55,7 @@ class MyWebsocketClient(gdax.WebsocketClient):
                 self.on_error(e)
                 #Added these lines to restart the websocket in the event of an error
                 #This may not work
-                self.thread.close()
+                self.close()
                 self.start()
             else:
                 self.on_message(msg)
