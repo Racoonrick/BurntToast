@@ -37,19 +37,19 @@ public_client = gdax.PublicClient()
 
 #################################################################db_handle Stuff
 test_str = '(sequence integer, price real, size real, time real)'
-db = db_handle.db_handle("websocket_trades_db",'trades',test_str)
+db = db_handle.db_handle("fake_trades",'trades',test_str)
 
 #Here are a bunch of Inserts to fill up the database
 #self.trade_dict_hold
-data = {'sequence':1,'price':9000,'size':1,'time':100}
+data = {'time':1532723000,'price':8240,'size':1,'sequence':100}
 db.insert_trade(data)
-data = {'sequence':2,'price':9000,'size':1,'time':100}
+data = {'time':1532728000,'price':8200,'size':1,'sequence':101}
 db.insert_trade(data)
-data = {'sequence':3,'price':9000,'size':1,'time':100}
+data = {'time':1532730350,'price':8180,'size':1,'sequence':102}
 db.insert_trade(data)
-data = {'sequence':4,'price':9000,'size':1,'time':100}
+data = {'time':1532733400,'price':8140,'size':1,'sequence':103}
 db.insert_trade(data)
-data = {'sequence':5,'price':9000,'size':1,'time':100}
+data = {'time':1532733450,'price':8150,'size':1,'sequence':104}
 db.insert_trade(data)
 
 print (db.read_trade_from_seq(6))
@@ -79,3 +79,11 @@ print(array1)
 # # 	print("Yes")
 # # else:
 # # 	print("no")
+
+#################################################################Sorting Data Base Ex
+
+# test_str = '(sequence integer, price real, size real, time real)'
+
+# db = db_handle.db_handle("websocket_trades_db",'trades',test_str)
+# db.conn.execute("SELECT * FROM trades ORDER BY sequence ASC")
+# db.print_trades()
