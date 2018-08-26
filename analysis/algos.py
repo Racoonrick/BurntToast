@@ -82,8 +82,10 @@ class PlotCanvas(FigureCanvas):
 	def __init__(self, parent=None, width=5, height=4, dpi=150):
 		self.d1 = 0
 		self.d2 = 0
+		########################################
 		#This sets the maximum time you will see
 		#from the recorded database
+		########################################
 		self.full_window = 1*24*60*60
 		self.pricev,self.sizev,self.timev = self.ParseData()
 		self.mpricev,self.msizev,self.mtimev = self.ParseMyTrade()
@@ -96,7 +98,7 @@ class PlotCanvas(FigureCanvas):
 		
 		########################################
 		#Initialization for Linear Regression
-		self.fitWindow = 30*60
+		self.fitWindow = 1*30*60
 		########################################
 
 		fig = Figure(figsize=(width, height), dpi=dpi)
@@ -198,12 +200,13 @@ class PlotCanvas(FigureCanvas):
 		self.update_plot()
 
 	def ParseMyTrade(self):
-		db_path ="C:/Users/Ricky/Documents/Work/BurntToast/data_handling/fake_trades"
-		tname = 'trades'
-		tcolumns = '(sequence integer, price real, size real, time real)'
+		db_path ="C:/Users/Ricky/Documents/Work/BurntToast/fake_trades.db"
+		tname = 'fake_trades'
+		tcolumns = '(sequence integer, price real, size real, time real, slope real, cash real, btc real, tradetype char(4))'
 		algo_dbh = dbh(db_path,tname,tcolumns)
-		algo_dbh.c.execute('SELECT price, size, time FROM trades')
+		algo_dbh.c.execute('SELECT price, size, time FROM fake_trades')
 		data = algo_dbh.c.fetchall()
+		print(data)
 
 		pricev = []
 		sizev = []
@@ -212,7 +215,6 @@ class PlotCanvas(FigureCanvas):
 			pricev.append(row[0])
 			sizev.append(row[1])
 			timev.append(row[2])
-
 		return pricev,sizev,timev;
 
 	def ParseData(self):

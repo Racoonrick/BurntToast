@@ -9,7 +9,7 @@ def toptest(): #this exists to test normal functions (with no class)
 	print ("test2")
 
 class exchange:
-	loginPath = os.path.join(current_path, "../../login.sandbox.json")
+	loginPath = os.path.join(current_path, "../../login.json")
 	loginData = dh(loginPath).dictRead()
 	auth_client = None
 	

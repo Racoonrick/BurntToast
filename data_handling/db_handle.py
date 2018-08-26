@@ -54,7 +54,7 @@ class db_handle(object):
 	def insert_trade(self, data):
 		try:
 			#	Ricky:
-			#		First we conver the dictionary to a list in order with it's keys
+			#		First we convert the dictionary to a list in order with it's keys
 			#		Then we convert the list to a tuple for insertion
 			#		Finally we convert it back to a list for SQL
 			data_list = [data[key_v[:]] for key_v in self.key_array]
